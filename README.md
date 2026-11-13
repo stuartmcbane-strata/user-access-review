@@ -53,6 +53,14 @@ unauthenticated requests never reach the app. The app additionally refuses to se
 with authentication switched off (`WEBSITE_AUTH_ENABLED` not `True`), rejects cross-site form posts, and sends a
 strict Content-Security-Policy.
 
+Easy Auth is configured with the v2 settings (`config/authsettingsV2`): Microsoft provider, issuer
+`https://login.microsoftonline.com/<tenant-id>/v2.0`, the app registration's client id, client secret read from the
+`MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` app setting, unauthenticated action *redirect to login page*, HTTPS only,
+token store on. On a web app that has never had auth configured, `az webapp auth ...` refuses with "Cannot use auth v2
+commands when the app is using auth v1", so apply it with
+`az rest --method put --uri .../sites/strata-user-access-review/config/authsettingsV2?api-version=2022-03-01 --body @auth.json`.
+To rotate the client secret, update `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET` only - Graph reads fall back to it.
+
 ### Deploy
 
 ```bash
