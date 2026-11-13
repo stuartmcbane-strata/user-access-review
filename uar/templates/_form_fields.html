@@ -1,0 +1,12 @@
+<div class="formgrid">
+  <label>Sign-in name / email (UPN) *<input name="identifier" type="text" required maxlength="256" value="{{ v.identifier }}" placeholder="jo.bloggs@partner.com"></label>
+  <label>Display name<input name="display_name" type="text" maxlength="200" value="{{ v.display_name }}"></label>
+  <label>Category *<select name="category" required>
+    <option value="">Choose...</option>
+    {% for c in categories %}<option {{ 'selected' if v.category == c }}>{{ c }}</option>{% endfor %}
+  </select></label>
+  <label>Sponsor / owner<input name="sponsor" type="text" maxlength="200" value="{{ v.sponsor }}" placeholder="Who vouches for this account"></label>
+  <label>Review / expiry date<input name="expires" type="date" value="{{ v.expires }}"></label>
+  <label class="wide">Reason *<input name="reason" type="text" required maxlength="500" value="{{ v.reason }}" placeholder="e.g. External auditor - Deloitte engagement 2026"></label>
+  <input type="hidden" name="ms_object_id" value="{{ v.ms_object_id }}">
+</div>

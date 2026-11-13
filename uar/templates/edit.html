@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ entry.identifier }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Edit additional user</h1>
+  <p class="muted small">Added by {{ entry.added_by }} on {{ entry.added_at[:10] }}{% if entry.updated_by %}; last edited by {{ entry.updated_by }} on {{ entry.updated_at[:10] }}{% endif %}.</p>
+  <form method="post" action="{{ url_for('additional_update', entry_id=entry.id) }}">
+    {% with v=entry %}{% include "_form_fields.html" %}{% endwith %}
+    <button class="btn" type="submit">Save</button> <a class="btn ghost" href="{{ url_for('additional_list') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

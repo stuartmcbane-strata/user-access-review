@@ -1,0 +1,4 @@
+Flask>=3.0,<4
+gunicorn>=22,<28
+requests>=2.31,<3
+azure-data-tables>=12.5,<13

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Review{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div>
+    <h1>Microsoft sign-in access vs HiBob</h1>
+    <p class="muted">Microsoft accounts with sign-in enabled{% if not cfg.microsoft_include_guests %} (members only){% endif %}, compared with valid HiBob employees{% if cfg.hibob_include_prehires %} (active + pre-start joiners){% endif %} and the additional users list.
+      {% if refreshed_at %}Data pulled {{ refreshed_at }}.{% endif %}</p>
+  </div>
+  <form method="post" action="{{ url_for('refresh') }}"><button class="btn" type="submit">Refresh now</button></form>
+</div>
+{% if error %}<div class="flash error"><strong>Could not load data:</strong> {{ error }}</div>{% endif %}
+{% for n in notes %}<div class="flash info">{{ n }}</div>{% endfor %}
+{% if review %}
+<section class="tiles">
+  <a class="tile alert" href="#unmatched" data-tab="unmatched"><b>{{ review.unmatched|length }}</b><span>Microsoft not in HiBob</span></a>
+  <a class="tile alert" href="#leavers" data-tab="leavers"><b>{{ review.leavers|length }}</b><span>HiBob leavers who can sign in</span></a>
+  <a class="tile warn" href="#no_login" data-tab="no_login"><b>{{ review.no_login|length }}</b><span>HiBob staff with no Microsoft login</span></a>
+  <a class="tile ok" href="#covered" data-tab="covered"><b>{{ review.covered|length }}</b><span>Covered by additional users</span></a>
+  <a class="tile ok" href="#matched" data-tab="matched"><b>{{ review.matched|length }}</b><span>Matched to HiBob</span></a>
+  <a class="tile warn" href="#stale" data-tab="stale"><b>{{ review.stale|length }}</b><span>Stale additional entries</span></a>
+</section>
+<p class="muted small">{{ review.microsoft_enabled }} Microsoft accounts can sign in ({{ review.microsoft_disabled }} blocked, not reviewed). HiBob: {{ review.hibob_valid }} valid, {{ review.hibob_leavers }} leavers.</p>
+
+{% for key, label in sections.items() %}
+<section class="tab" id="{{ key }}">
+  <div class="tabhead">
+    <h2>{{ label }} <span class="count">{{ (review[key])|length }}</span></h2>
+    <div class="tools"><input type="search" placeholder="Filter..." data-filter-for="{{ key }}"><a class="btn ghost" href="{{ url_for('export', section=key) }}">Export CSV</a></div>
+  </div>
+  {% if key == 'unmatched' %}
+    <p class="muted">Sign-in enabled accounts with no matching valid HiBob employee and no current additional-users entry. Disable them, or mark them as additional users with a reason.</p>
+    {% with rows=review.unmatched, show_hibob=False, show_additional=False, mark=True, section=key %}{% include "_ms_table.html" %}{% endwith %}
+  {% elif key == 'leavers' %}
+    <p class="muted">Accounts that still allow sign-in but belong to someone HiBob shows as terminated.</p>
+    {% with rows=review.leavers, show_hibob=True, show_additional=False, mark=True, section=key %}{% include "_ms_table.html" %}{% endwith %}
+  {% elif key == 'covered' %}
+    {% with rows=review.covered, show_hibob=False, show_additional=True, mark=False, section=key %}{% include "_ms_table.html" %}{% endwith %}
+  {% elif key == 'matched' %}
+    {% with rows=review.matched, show_hibob=True, show_additional=False, mark=False, section=key %}{% include "_ms_table.html" %}{% endwith %}
+  {% elif key == 'no_login' %}
+    <p class="muted">Valid HiBob employees whose work email doesn't match any Microsoft account that can sign in (often a different email in HiBob, or a blocked account).</p>
+    <table class="grid" data-filterable>
+      <thead><tr><th>Name</th><th>HiBob email</th><th>Status</th><th>Start date</th><th>Title</th><th>Department</th><th>Site</th><th>Note</th></tr></thead>
+      <tbody>
+      {% for r in review.no_login %}
+        <tr><td>{{ r.person.display_name }}</td><td class="mono">{{ r.person.email }}</td><td>{{ r.person.status }} / {{ r.person.lifecycle }}</td><td>{{ r.person.start_date }}</td><td>{{ r.person.title }}</td><td>{{ r.person.department }}</td><td>{{ r.person.site }}</td><td>{{ r.note }}</td></tr>
+      {% else %}<tr class="empty"><td colspan="8">Nothing here.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  {% elif key == 'stale' %}
+    <p class="muted">Additional-users entries that no longer match a Microsoft account that can sign in.</p>
+    <table class="grid" data-filterable>
+      <thead><tr><th>Identifier</th><th>Name</th><th>Category</th><th>Reason</th><th>Sponsor</th><th>Expires</th><th>Note</th><th></th></tr></thead>
+      <tbody>
+      {% for r in review.stale %}
+        <tr><td class="mono">{{ r.entry.identifier }}</td><td>{{ r.entry.display_name }}</td><td>{{ r.entry.category }}</td><td>{{ r.entry.reason }}</td><td>{{ r.entry.sponsor }}</td><td>{{ r.entry.expires }}</td><td>{{ r.note }}</td>
+          <td class="actions"><form method="post" action="{{ url_for('additional_delete', entry_id=r.entry.id) }}" data-confirm="Remove {{ r.entry.identifier }} from the additional users list?"><input type="hidden" name="next" value="{{ url_for('index') }}#stale"><button class="btn small danger" type="submit">Remove</button></form></td></tr>
+      {% else %}<tr class="empty"><td colspan="8">Nothing here.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</section>
+{% endfor %}
+{% endif %}
+{% endblock %}

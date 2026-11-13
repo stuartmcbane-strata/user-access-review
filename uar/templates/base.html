@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}User Access Review{% endblock %} - Strata</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='strata_logo.png') }}" alt="Strata"><span>User Access Review</span></a>
+  <nav>
+    <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Review</a>
+    <a href="{{ url_for('additional_list') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('additional') }}">Additional users</a>
+    <a href="{{ url_for('audit_log') }}" class="{{ 'active' if request.endpoint == 'audit_log' }}">Audit log</a>
+  </nav>
+  {% if user %}<div class="who">{{ user.display_name }}<small>{{ user.name }}</small><a href="/.auth/logout?post_logout_redirect_uri=/">Sign out</a></div>{% endif %}
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

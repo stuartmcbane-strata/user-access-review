@@ -1,0 +1,26 @@
+{# rows: list[MicrosoftRow]; mark: show "mark as additional" action #}
+<table class="grid" data-filterable>
+  <thead><tr><th>Name</th><th>Sign-in name (UPN)</th><th>Type</th><th>Licensed</th><th>Created</th><th>Last sign-in</th>
+    {% if show_hibob %}<th>HiBob</th>{% endif %}{% if show_additional %}<th>Additional entry</th>{% endif %}<th>Note</th>{% if mark %}<th></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td>{{ r.user.display_name }}{% if r.user.mail and r.user.mail != r.user.upn %}<div class="sub">{{ r.user.mail }}</div>{% endif %}</td>
+      <td class="mono">{{ r.user.upn }}</td>
+      <td><span class="pill {{ 'guest' if r.user.is_guest else 'member' }}">{{ r.user.user_type }}</span></td>
+      <td>{{ 'Yes' if r.user.licensed else 'No' }}</td>
+      <td>{{ r.user.created }}</td>
+      <td>{{ r.user.last_sign_in or '-' }}</td>
+      {% if show_hibob %}<td>{% if r.hibob %}{{ r.hibob.display_name }}<div class="sub">{{ r.hibob.status }} / {{ r.hibob.lifecycle }}{% if r.hibob.department %} &middot; {{ r.hibob.department }}{% endif %}</div>{% endif %}</td>{% endif %}
+      {% if show_additional %}<td>{% if r.additional %}{{ r.additional.category }}<div class="sub">{{ r.additional.reason }}{% if r.additional.expires %} &middot; expires {{ r.additional.expires }}{% endif %}</div>{% endif %}</td>{% endif %}
+      <td>{{ r.note }}</td>
+      {% if mark %}<td class="actions">
+        {% if r.additional %}<a class="btn small" href="{{ url_for('additional_edit', entry_id=r.additional.id) }}">Renew entry</a>
+        {% else %}<a class="btn small" href="{{ url_for('additional_list', identifier=r.user.upn, display_name=r.user.display_name, ms_object_id=r.user.id, category='External / guest' if r.user.is_guest else '', next=url_for('index') ~ '#' ~ section) }}#add">Mark as additional</a>{% endif %}
+      </td>{% endif %}
+    </tr>
+  {% else %}
+    <tr class="empty"><td colspan="11">Nothing here.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
