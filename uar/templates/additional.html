@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Additional users{% endblock %}
+{% block content %}
+<div class="pagehead"><div><h1>Additional users</h1>
+  <p class="muted">Accounts allowed to sign in that won't be in HiBob (externals, contractors, service accounts, shared mailboxes). Each entry marks the matching Microsoft account off the review. Entries past their expiry date stop counting and the account shows as an exception again.</p></div></div>
+
+<div class="card" id="add">
+  <h2>Add a user</h2>
+  <form method="post" action="{{ url_for('additional_create') }}">
+    {% with v=prefill %}{% include "_form_fields.html" %}{% endwith %}
+    <input type="hidden" name="next" value="{{ prefill.next }}">
+    <button class="btn" type="submit">Add user</button>
+  </form>
+  <details class="import"><summary>Bulk import from CSV</summary>
+    <p class="muted small">Columns: <code>identifier</code> (or <code>email</code>/<code>upn</code>), <code>display_name</code>, <code>category</code>, <code>reason</code>, <code>sponsor</code>, <code>expires</code> (YYYY-MM-DD). Existing identifiers are skipped.</p>
+    <form method="post" action="{{ url_for('additional_import') }}" enctype="multipart/form-data"><input type="file" name="file" accept=".csv,text/csv"> <button class="btn ghost" type="submit">Import</button></form>
+  </details>
+</div>
+
+<section>
+  <div class="tabhead"><h2>On the list <span class="count">{{ entries|length }}</span></h2><div class="tools"><input type="search" placeholder="Filter..." data-filter-for="entries"></div></div>
+  <table class="grid" data-filterable id="entries">
+    <thead><tr><th>Identifier</th><th>Name</th><th>Category</th><th>Reason</th><th>Sponsor</th><th>Expires</th><th>Added</th><th></th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+      <tr class="{{ 'expired' if e.is_expired(today) }}">
+        <td class="mono">{{ e.identifier }}</td><td>{{ e.display_name }}</td><td>{{ e.category }}</td><td>{{ e.reason }}</td><td>{{ e.sponsor }}</td>
+        <td>{{ e.expires or '-' }}{% if e.is_expired(today) %} <span class="pill expired">expired</span>{% endif %}</td>
+        <td>{{ e.added_by }}<div class="sub">{{ e.added_at[:10] }}{% if e.updated_by %} &middot; edited by {{ e.updated_by }} {{ e.updated_at[:10] }}{% endif %}</div></td>
+        <td class="actions"><a class="btn small ghost" href="{{ url_for('additional_edit', entry_id=e.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('additional_delete', entry_id=e.id) }}" data-confirm="Remove {{ e.identifier }} from the additional users list?"><button class="btn small danger" type="submit">Remove</button></form></td>
+      </tr>
+    {% else %}<tr class="empty"><td colspan="8">No additional users yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
