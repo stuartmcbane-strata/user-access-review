@@ -89,8 +89,8 @@ def test_csv_import_and_export(make_client, store):
     import io
 
     client = make_client()
-    csv_text = "email,display_name,category,reason,expires\nscanner@strata.com,Scanner,Service account,Printer,\n" \
-               "gus@partner.com,Gus,External / guest,Auditor,2099-01-01\nbad,,,,\n"
+    csv_text = "email,display_name,category,reason,expires,sponsor\nscanner@strata.com,Scanner,Service account,Printer,,IT Ops\n" \
+               "gus@partner.com,Gus,External / guest,Auditor,2099-01-01,Finance\nbad,,,,,\n"
     resp = client.post("/additional/import", data={"file": (io.BytesIO(csv_text.encode()), "x.csv")}, headers=AUTH,
                        content_type="multipart/form-data", follow_redirects=True)
     assert b"Imported 2 entries" in resp.data
@@ -99,6 +99,9 @@ def test_csv_import_and_export(make_client, store):
     client.post("/refresh", headers=AUTH)
     csv_out = client.get("/export/covered.csv", headers=AUTH).data.decode()
     assert "scanner@strata.com" in csv_out and "gus_partner.com#ext#" in csv_out
+    assert "Sponsor" in csv_out.splitlines()[0] and "IT Ops" in csv_out and "Finance" in csv_out
+    page = client.get("/", headers=AUTH).data.decode()
+    assert "<th>Sponsor</th>" in page and "<td>IT Ops</td>" in page
     assert "scanner@strata.com" not in client.get("/export/unmatched.csv", headers=AUTH).data.decode()
     assert client.get("/export/nope.csv", headers=AUTH).status_code == 404
 
