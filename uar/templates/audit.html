@@ -2,7 +2,7 @@
 {% block title %}Audit log{% endblock %}
 {% block content %}
 <div class="pagehead"><div><h1>Audit log</h1><p class="muted">Every change to the additional users list (latest 500).</p></div></div>
-<div class="tabhead"><div></div><div class="tools"><input type="search" placeholder="Filter..." data-filter-for="audit"></div></div>
+<div class="tabhead"><div></div><div class="tools"><input type="search" name="filter" placeholder="Filter..." aria-label="Filter rows" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" data-filter-for="audit"></div></div>
 <table class="grid" data-filterable id="audit">
   <thead><tr><th>When (UTC)</th><th>Who</th><th>Action</th><th>User</th><th>Details</th></tr></thead>
   <tbody>
