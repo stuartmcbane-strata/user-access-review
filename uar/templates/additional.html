@@ -18,7 +18,7 @@
 </div>
 
 <section>
-  <div class="tabhead"><h2>On the list <span class="count">{{ entries|length }}</span></h2><div class="tools"><input type="search" placeholder="Filter..." data-filter-for="entries"></div></div>
+  <div class="tabhead"><h2>On the list <span class="count">{{ entries|length }}</span></h2><div class="tools"><input type="search" name="filter" placeholder="Filter..." aria-label="Filter rows" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" data-filter-for="entries"></div></div>
   <table class="grid" data-filterable id="entries">
     <thead><tr><th>Identifier</th><th>Name</th><th>Category</th><th>Reason</th><th>Sponsor</th><th>Expires</th><th>Added</th><th></th></tr></thead>
     <tbody>

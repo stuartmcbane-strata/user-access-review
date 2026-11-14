@@ -26,7 +26,7 @@
 <section class="tab" id="{{ key }}">
   <div class="tabhead">
     <h2>{{ label }} <span class="count">{{ (review[key])|length }}</span></h2>
-    <div class="tools"><input type="search" placeholder="Filter..." data-filter-for="{{ key }}"><a class="btn ghost" href="{{ url_for('export', section=key) }}">Export CSV</a></div>
+    <div class="tools"><input type="search" name="filter" placeholder="Filter..." aria-label="Filter rows" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" data-filter-for="{{ key }}"><a class="btn ghost" href="{{ url_for('export', section=key) }}">Export CSV</a></div>
   </div>
   {% if key == 'unmatched' %}
     <p class="muted">Sign-in enabled accounts with no matching valid HiBob employee and no current additional-users entry. Disable them, or mark them as additional users with a reason.</p>

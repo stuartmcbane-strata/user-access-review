@@ -38,6 +38,7 @@ def test_review_page(make_client):
     body = resp.data.decode()
     assert "scanner@strata.com" in body and "Mark as additional" in body
     assert "Content-Security-Policy" in resp.headers
+    assert 'type="search" name="filter"' in body and 'autocomplete="off"' in body
 
 
 def test_post_requires_same_origin(make_client):
