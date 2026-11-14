@@ -72,14 +72,14 @@ def build_sources(cfg: Config, store) -> Sources:
 def section_rows(review: Review, section: str) -> tuple[list[str], list[list[str]]]:
     if section in ("unmatched", "leavers", "covered", "matched"):
         header = ["Display name", "UPN", "Mail", "Type", "Licensed", "Created", "Last sign-in", "HiBob", "Additional entry",
-                  "Note"]
+                  "Sponsor", "Note"]
         rows = []
         for r in getattr(review, section):
             u = r.user
             hb = f"{r.hibob.display_name} ({r.hibob.status}/{r.hibob.lifecycle})" if r.hibob else ""
             add = f"{r.additional.category}: {r.additional.reason}" if r.additional else ""
             rows.append([u.display_name, u.upn, u.mail, u.user_type, "Yes" if u.licensed else "No", u.created,
-                         u.last_sign_in, hb, add, r.note])
+                         u.last_sign_in, hb, add, r.additional.sponsor if r.additional else "", r.note])
         return header, rows
     if section == "no_login":
         header = ["Display name", "Email", "Status", "Lifecycle", "Start date", "Title", "Department", "Site", "Note"]
